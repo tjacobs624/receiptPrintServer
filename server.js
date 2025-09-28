@@ -13,8 +13,8 @@ const PRINTER_DEVICE = '/dev/usb/lp0';
 // Paper tracking constants
 const PAPER_STATUS_FILE = path.join(__dirname, 'paper_status.json');
 const PAPER_ROLL_LENGTH_MM = 69850; // 230 feet minus ~8 inches for loading
-const MM_PER_LINE = 1.5;
-const MM_PER_JOB_OVERHEAD = 12; // 6 newlines + cut operation
+const MM_PER_LINE = 3.5; // Typical thermal printer line height
+const MM_PER_JOB_OVERHEAD = 25; // 6 newlines (~21mm) + cut operation (~4mm)
 
 // Paper tracking functions
 function loadPaperStatus() {
@@ -128,6 +128,32 @@ app.post('/paper/reset', (req, res) => {
                 remaining_percent: 100,
                 total_jobs: 0,
                 last_reset: newStatus.last_reset
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/paper/adjust', (req, res) => {
+    try {
+        const { remaining_mm } = req.body;
+        if (typeof remaining_mm !== 'number' || remaining_mm < 0 || remaining_mm > PAPER_ROLL_LENGTH_MM) {
+            return res.status(400).json({ error: 'Invalid remaining_mm value' });
+        }
+
+        const status = loadPaperStatus();
+        status.remaining_mm = remaining_mm;
+        savePaperStatus(status);
+
+        res.json({
+            status: 'paper_adjusted',
+            message: `Paper level manually set to ${remaining_mm}mm`,
+            paper: {
+                remaining_mm: remaining_mm,
+                remaining_percent: Math.round((remaining_mm / PAPER_ROLL_LENGTH_MM) * 100),
+                total_jobs: status.total_jobs,
+                last_reset: status.last_reset
             }
         });
     } catch (error) {
