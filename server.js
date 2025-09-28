@@ -12,7 +12,7 @@ const PRINTER_DEVICE = '/dev/usb/lp0';
 
 // Paper tracking constants
 const PAPER_STATUS_FILE = path.join(__dirname, 'paper_status.json');
-const PAPER_ROLL_LENGTH_MM = 69850; // 230 feet minus ~8 inches for loading
+const PAPER_ROLL_LENGTH_MM = 69901; // 230 feet minus ~8 inches for loading
 const MM_PER_LINE = 3.5; // Typical thermal printer line height
 const MM_PER_JOB_OVERHEAD = 25; // 6 newlines (~21mm) + cut operation (~4mm)
 
