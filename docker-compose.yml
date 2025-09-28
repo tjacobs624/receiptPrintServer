@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  print-server:
+    build: .
+    ports:
+      - "3000:3000"
+    devices:
+      - "/dev/usb/lp0:/dev/usb/lp0"
+    volumes:
+      - "/dev:/dev"
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - PRINTER_DEVICE=/dev/usb/lp0
